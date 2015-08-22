@@ -15,6 +15,8 @@ class Game extends hxd.App {
 	var icons : Array<h2d.Tile>;
 	var actions : Array<{ b : h2d.Bitmap, act : Action }>;
 	var onUI = false;
+	var goldText : h2d.Text;
+	public var state : State;
 	public var event : hxd.WaitEvent;
 	public var font : h2d.Font;
 
@@ -33,10 +35,37 @@ class Game extends hxd.App {
 		level.root.add(cunder, 0);
 		s2d.add(cursor, 2);
 		s2d.addEventListener(onEvent);
-		talk.intro(function() {
-			addAction(Buldozer);
-			setAction(Buldozer);
-		});
+		state = try hxd.Save.load(new State()) catch( e : Dynamic ) null;
+		if( state == null ) state = new State();
+		state.init();
+		if( !state.intro ) {
+			talk.intro(function() {
+				state.intro = true;
+				addAction(Buldozer);
+				setAction(Buldozer);
+				updateGold();
+				save();
+			});
+		} else {
+			updateGold();
+			for( a in state.actions )
+				addAction(a);
+			setAction(actions[0].act);
+		}
+	}
+
+	function updateGold() {
+		if( goldText == null ) {
+			goldText = new h2d.Text(font, s2d);
+			goldText.y = 5;
+			goldText.x = 5;
+//			new h2d.Bitmap(icons[17], goldText);
+		}
+		goldText.text = "$" + state.gold;
+	}
+
+	function save() {
+		hxd.Save.save(state);
 	}
 
 	function addAction( act : Action ) {
@@ -55,9 +84,11 @@ class Game extends hxd.App {
 			a.filters = [new h2d.filter.Glow(act == curAction ? 0xFFFFFF : 0, 100000)];
 		};
 		i.onClick = function(_) {
+			hxd.Res.sfx.confirm.play();
 			setAction(act);
 		};
-		actions.push({ b:a, act : act });
+		actions.push( { b:a, act : act } );
+		if( state.actions.indexOf(act) < 0 ) state.actions.push(act);
 	}
 
 	function onEvent( e : hxd.Event ) {
@@ -75,6 +106,16 @@ class Game extends hxd.App {
 	}
 
 	function execAction( act : Action, x : Int, y : Int ) {
+
+		var cost = switch( act ) {
+		case Buldozer: 10;
+		default: 0;
+		}
+		if( state.gold < cost ) {
+			hxd.Res.sfx.cancel.play();
+			return;
+		}
+
 		switch( act ) {
 		case Buldozer:
 			var ok = false;
@@ -88,11 +129,20 @@ class Game extends hxd.App {
 					ok = true;
 					level.treesData.remove(t);
 				}
-			if( !ok ) return;
+			if( !ok ) {
+				hxd.Res.sfx.cancel.play();
+				return;
+			}
 			level.init();
 			hxd.Res.sfx.buldoze.play();
+			state.buldozeCount++;
+			if( state.buldozeCount == 3 )
+				talk.startPlant();
 		default:
 		}
+
+		state.gold -= cost;
+		updateGold();
 	}
 
 	function setAction( act : Action ) {
@@ -105,12 +155,20 @@ class Game extends hxd.App {
 	override function update(dt:Float) {
 		event.update(dt);
 		cunder.visible = cursor.visible = !talk.isLocked() && !onUI;
+
+		#if debug
+		if( hxd.Key.isPressed(hxd.Key.BACKSPACE) ) {
+			s2d.dispose();
+			hxd.Save.save(null);
+			new Game(engine);
+		}
+		#end
 	}
 
 	public static var inst : Game;
 
 	static function main() {
-		hxd.Res.initEmbed(/* { compressSounds:true } */);
+		hxd.Res.initEmbed({ compressSounds:true });
 		Data.load(hxd.Res.data.entry.getBytes().toString());
 		new Game();
 	}

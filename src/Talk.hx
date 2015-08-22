@@ -1,6 +1,7 @@
 enum Char {
-	Scientific;
+	Critic;
 	Hero;
+	GMO;
 }
 
 class Talk {
@@ -15,16 +16,14 @@ class Talk {
 
 	public function intro( onEnd ) {
 
-		//#if debug onEnd(); return; #end
-
-		dialog(Scientific, "Look $name !#We have discovered a beautiful forest!#What a wonderful place, so peaceful and full of beauty and happyness!!!",
+		dialog(Critic, "Look $name !#We have discovered a beautiful forest!#What a wonderful place, so peaceful and full of beauty and happyness!!!",
 		function() {
 			select(Hero, "Tear it the f*ck down!|Let's annihilate it!|It will be ground zero soon!", function(r) {
-				dialog(Scientific, "WAIT?#~BUT WHY???", function() {
+				dialog(Critic, "WAIT?#~BUT WHY???", function() {
 					dialog(Hero, "I need some place to plant my new GMO.#There's a lot of money to make there.", function() {
-						dialog(Scientific, "But... but $name, you're already a billionaire!#Why doing this for even more money that you DON'T EVEN NEED?", function() {
+						dialog(Critic, "But... but $name, you're already a billionaire!#Why doing this for even more money that you DON'T EVEN NEED?", function() {
 							dialog(Hero, "How do you think I became billionaire in the first place?#Because I always want MORE!#Call the bulldozers!", function() {
-								dialog(Scientific, "But...#Think about the poor squirrels !#You're...#~YOU'RE A MONSTER !!!", function() {
+								dialog(Critic, "But...#Think about the poor squirrels !#You're...#~YOU'RE A MONSTER !!!", function() {
 									dialog(Hero, "Please call me capitalism unleashed!", onEnd);
 								});
 							});
@@ -32,6 +31,11 @@ class Talk {
 					});
 				});
 			});
+		});
+	}
+
+	public function startPlant() {
+		dialog(GMO, "$name, your GMO delivery is ready.", function() {
 		});
 	}
 

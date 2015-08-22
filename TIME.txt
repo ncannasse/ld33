@@ -7,3 +7,4 @@ Day 1
 14:45-15:15		lunch
 15:15-16:00		display world
 16:00-16:45		action system, buldoze ok
+16:45-17:30		state, scientist 
