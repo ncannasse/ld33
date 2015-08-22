@@ -1,0 +1,6 @@
+-cp src
+-swf ld33.swf
+-swf-header 800:600:60:000000
+-swf-version 12
+-main Game
+-lib heaps
