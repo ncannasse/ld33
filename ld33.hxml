@@ -4,4 +4,4 @@
 -swf-version 12
 -main Game
 -lib heaps
--dce full
+-lib castle

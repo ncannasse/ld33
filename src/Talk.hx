@@ -13,7 +13,10 @@ class Talk {
 	}
 
 
-	public function intro() {
+	public function intro( onEnd ) {
+
+		//#if debug onEnd(); return; #end
+
 		dialog(Scientific, "Look $name !#We have discovered a beautiful forest!#What a wonderful place, so peaceful and full of beauty and happyness!!!",
 		function() {
 			select(Hero, "Tear it the f*ck down!|Let's annihilate it!|It will be ground zero soon!", function(r) {
@@ -22,7 +25,7 @@ class Talk {
 						dialog(Scientific, "But... but $name, you're already a billionaire!#Why doing this for even more money that you DON'T EVEN NEED?", function() {
 							dialog(Hero, "How do you think I became billionaire in the first place?#Because I always want MORE!#Call the bulldozers!", function() {
 								dialog(Scientific, "But...#Think about the poor squirrels !#You're...#~YOU'RE A MONSTER !!!", function() {
-									dialog(Hero, "Please call me capitalism unleashed!");
+									dialog(Hero, "Please call me capitalism unleashed!", onEnd);
 								});
 							});
 						});
@@ -30,6 +33,10 @@ class Talk {
 				});
 			});
 		});
+	}
+
+	public function isLocked() {
+		return curDialog != null;
 	}
 
 	function formatText( t : String ) {

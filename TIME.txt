@@ -4,3 +4,6 @@ Day 1
 10:15-11:45		first tiles : tree, dirt, plants
 11:45-13:00		evo2 bugs, first portaits
 13:00-14:45		dialog system working
+14:45-15:15		lunch
+15:15-16:00		display world
+16:00-16:45		action system, buldoze ok

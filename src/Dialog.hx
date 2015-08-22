@@ -34,6 +34,9 @@ class Dialog extends h2d.Sprite {
 		game = Game.inst;
 		game.s2d.add(this, 1);
 
+		var black = new h2d.Bitmap(h2d.Tile.fromColor(0, Game.W, Game.H, 0.5), this);
+		black.y = (Game.H >> 1) + 40;
+
 		var t = hxd.Res.chars.toTile().grid(16);
 		talk = new h2d.Anim([t[who.getIndex() * 16], t[who.getIndex() * 16 + 1]], 0, this);
 		talk.y = Game.H - 64;
@@ -60,6 +63,7 @@ class Dialog extends h2d.Sprite {
 		if( width > tf.textWidth + 20 || isSelect ) width = tf.textWidth + 20;
 
 		if( width > Game.W * 2 / 3 && !isSelect ) width = Std.int(Game.W * 2 / 3);
+
 
 		this.width = width;
 		tf.text = text;
@@ -177,7 +181,13 @@ class Dialog extends h2d.Sprite {
 		tf.text = text.substr(0, textPos);
 	}
 
+	var lastClick = 0.;
+
 	public function click() {
+
+		if( haxe.Timer.stamp() - lastClick < 0.1 ) return;
+		lastClick = haxe.Timer.stamp();
+
 		if( textPos == text.length ) {
 			lastTalkTime = haxe.Timer.stamp();
 			onClick();

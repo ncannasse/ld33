@@ -1,3 +1,6 @@
+enum Action {
+	Buldozer;
+}
 
 class Game extends hxd.App {
 
@@ -5,6 +8,13 @@ class Game extends hxd.App {
 	public static inline var H = 300;
 
 	var talk : Talk;
+	var level : Level;
+	var curAction : Action;
+	var cursor : h2d.Bitmap;
+	var cunder : h2d.Bitmap;
+	var icons : Array<h2d.Tile>;
+	var actions : Array<{ b : h2d.Bitmap, act : Action }>;
+	var onUI = false;
 	public var event : hxd.WaitEvent;
 	public var font : h2d.Font;
 
@@ -14,17 +24,94 @@ class Game extends hxd.App {
 		font = hxd.Res._8bit.toFont();
 		s2d.setFixedSize(W, H);
 		talk = new Talk();
-		talk.intro();
+		level = new Level();
+		actions = [];
+		icons = hxd.Res.icons.toTile().grid(16);
+		cunder = new h2d.Bitmap(icons[16]);
+		cursor = new h2d.Bitmap(null);
+		cursor.filters = [new h2d.filter.Glow(0, 10000)];
+		level.root.add(cunder, 0);
+		s2d.add(cursor, 2);
+		s2d.addEventListener(onEvent);
+		talk.intro(function() {
+			addAction(Buldozer);
+			setAction(Buldozer);
+		});
+	}
+
+	function addAction( act : Action ) {
+		var cont = new h2d.Sprite(s2d);
+		var a = new h2d.Bitmap(icons[act.getIndex()], cont);
+		cont.x = Game.W - (actions.length + 1) * 18 - 5;
+		cont.y = 5;
+		a.filters = [new h2d.filter.Glow(0, 100000)];
+		var i = new h2d.Interactive(16, 16, cont);
+		i.onOver = function(_) {
+			onUI = true;
+			a.filters = [new h2d.filter.Glow(0xFFFF00, 100000)];
+		};
+		i.onOut = function(_) {
+			onUI = false;
+			a.filters = [new h2d.filter.Glow(act == curAction ? 0xFFFFFF : 0, 100000)];
+		};
+		i.onClick = function(_) {
+			setAction(act);
+		};
+		actions.push({ b:a, act : act });
+	}
+
+	function onEvent( e : hxd.Event ) {
+		switch( e.kind ) {
+		case EMove:
+			cursor.x = e.relX;
+			cursor.y = e.relY;
+			cunder.x = Std.int(cursor.x / (16 * level.root.scaleX)) * 16;
+			cunder.y = Std.int(cursor.y / (16 * level.root.scaleY)) * 16;
+		case EPush:
+			if( !cursor.visible ) return;
+			execAction(curAction, Std.int(cunder.x/16), Std.int(cunder.y/16));
+		default:
+		}
+	}
+
+	function execAction( act : Action, x : Int, y : Int ) {
+		switch( act ) {
+		case Buldozer:
+			var ok = false;
+			var pp = x + y * level.width;
+			if( level.bgData[pp] <= 4 ) {
+				ok = true;
+				level.bgData[pp] += 4;
+			}
+			for( t in level.treesData )
+				if( t.x == x && t.y == y ) {
+					ok = true;
+					level.treesData.remove(t);
+				}
+			if( !ok ) return;
+			level.init();
+			hxd.Res.sfx.buldoze.play();
+		default:
+		}
+	}
+
+	function setAction( act : Action ) {
+		curAction = act;
+		cursor.tile = icons[act.getIndex()];
+		for( a in actions )
+			a.b.filters = [new h2d.filter.Glow(a.act == act ? 0xFFFFFF : 0, 10000)];
 	}
 
 	override function update(dt:Float) {
 		event.update(dt);
+		cunder.visible = cursor.visible = !talk.isLocked() && !onUI;
 	}
 
 	public static var inst : Game;
 
 	static function main() {
-		hxd.Res.initEmbed( { compressSounds:true } );
+		hxd.Res.initEmbed(/* { compressSounds:true } */);
+		Data.load(hxd.Res.data.entry.getBytes().toString());
 		new Game();
 	}
 
