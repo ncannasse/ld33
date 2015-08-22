@@ -2,3 +2,5 @@ Day 1
 
 10:15			started, project setup
 10:15-11:45		first tiles : tree, dirt, plants
+11:45-13:00		evo2 bugs, first portaits
+13:00-14:45		dialog system working
