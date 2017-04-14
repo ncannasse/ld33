@@ -62,7 +62,7 @@ class Level {
 	public function init() {
 		dispose();
 		var tiles = hxd.Res.tiles.toTile();
-		var tall = tiles.grid(16);
+		var tall = tiles.gridFlatten(16);
 		bg = new h2d.TileGroup(tiles);
 		root.add(bg, 0);
 		root.under(bg);

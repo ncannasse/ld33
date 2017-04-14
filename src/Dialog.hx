@@ -37,7 +37,7 @@ class Dialog extends h2d.Sprite {
 		var black = new h2d.Bitmap(h2d.Tile.fromColor(0, Game.W, Game.H, 0.5), this);
 		black.y = (Game.H >> 1) + 40;
 
-		var t = hxd.Res.chars.toTile().grid(16);
+		var t = hxd.Res.chars.toTile().gridFlatten(16);
 		talk = new h2d.Anim([t[who.getIndex() * 16], t[who.getIndex() * 16 + 1]], 0, this);
 		talk.y = Game.H - 64;
 		talk.x = who == Hero ? 5 : Game.W - (64 + 5);
@@ -154,8 +154,8 @@ class Dialog extends h2d.Sprite {
 		timer.run = updateText;
 	}
 
-	override function onDelete() {
-		super.onDelete();
+	override function onRemove() {
+		super.onRemove();
 		if( sfx != null )
 			sfx.stop();
 		if( timer != null )

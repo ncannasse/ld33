@@ -28,7 +28,7 @@ class Game extends hxd.App {
 		talk = new Talk();
 		level = new Level();
 		actions = [];
-		icons = hxd.Res.icons.toTile().grid(16);
+		icons = hxd.Res.icons.toTile().gridFlatten(16);
 		cunder = new h2d.Bitmap(icons[16]);
 		cursor = new h2d.Bitmap(null);
 		cursor.filters = [new h2d.filter.Glow(0, 10000)];
